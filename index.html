@@ -1,0 +1,2061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TraceRoot — Client discovery questionnaire</title>
+  <style>
+    :root {
+      --ink: #1a1f26;
+      --muted: #5a6570;
+      --line: #c8d0d8;
+      --bg: #f7f8fa;
+      --card: #ffffff;
+      --accent: #0f477b;
+      --accent-soft: #e8f0f7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.45;
+      color: var(--ink);
+      background: var(--bg);
+    }
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      background: var(--card);
+      border-bottom: 1px solid var(--line);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+    }
+    .toolbar h1 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 650;
+      color: var(--accent);
+    }
+    .toolbar-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .toolbar label.inline {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+    }
+    button.primary {
+      appearance: none;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      font: inherit;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button.ghost {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      font-weight: 560;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button.ghost:hover { background: var(--accent-soft); }
+    #saveStatus.ok { color: #1a7a3c; }
+    .wrap {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 24px 20px 64px;
+    }
+    .intro {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin-bottom: 20px;
+    }
+    .intro p { margin: 0 0 8px; color: var(--muted); }
+    .intro p:last-child { margin-bottom: 0; }
+    section.part {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px 18px 12px;
+      margin-bottom: 18px;
+    }
+    section.part > h2 {
+      margin: 0 0 4px;
+      font-size: 18px;
+      color: var(--accent);
+    }
+    section.part > .lead {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    h3 {
+      margin: 16px 0 8px;
+      font-size: 14px;
+      font-weight: 650;
+    }
+    .field {
+      margin-bottom: 12px;
+    }
+    .field > label,
+    .field-label {
+      display: block;
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+    .hint {
+      display: block;
+      font-weight: 400;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      font: inherit;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 7px 9px;
+      background: #fff;
+    }
+    textarea { min-height: 64px; resize: vertical; }
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+    .checks {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+    }
+    .checks label {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      font-weight: 400;
+      cursor: pointer;
+    }
+    table.sheet {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0 14px;
+      font-size: 13px;
+    }
+    table.sheet th,
+    table.sheet td {
+      border: 1px solid var(--line);
+      padding: 4px;
+      vertical-align: middle;
+    }
+    table.sheet th {
+      background: var(--accent-soft);
+      text-align: left;
+      font-weight: 600;
+      font-size: 12px;
+      padding: 6px 8px;
+    }
+    table.sheet input,
+    table.sheet select,
+    table.sheet textarea {
+      border: 1px solid transparent;
+      border-radius: 3px;
+      padding: 5px 6px;
+      background: transparent;
+    }
+    table.sheet input:focus,
+    table.sheet select:focus,
+    table.sheet textarea:focus {
+      border-color: var(--accent);
+      background: #fff;
+      outline: none;
+    }
+    .stage {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 12px;
+      margin-bottom: 12px;
+      background: #fafbfc;
+    }
+    .stage-title {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .stage-title strong {
+      font-size: 14px;
+      min-width: 140px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .appendix {
+      border-style: dashed;
+      background: #fbfcfd;
+    }
+    .appendix h2 { color: var(--muted); }
+    .path-map {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .path-map code {
+      font-size: 11px;
+      background: #eef2f6;
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+    @media print {
+      body { background: #fff; font-size: 11pt; }
+      .toolbar, .no-print { display: none !important; }
+      .wrap { max-width: none; padding: 0; }
+      .intro, section.part {
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 0 0 10pt;
+        margin: 0 0 8pt;
+        page-break-inside: avoid;
+      }
+      section.part { page-break-before: auto; break-inside: avoid; }
+      section.part.break-before { page-break-before: always; }
+      .stage { break-inside: avoid; page-break-inside: avoid; }
+      input, select, textarea {
+        border: 1px solid #999 !important;
+        background: #fff !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      table.sheet th { background: #e8f0f7 !important; }
+      a { color: inherit; text-decoration: none; }
+    }
+    @page {
+      size: letter;
+      margin: 0.6in;
+    }
+
+    .opt-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 12px;
+      margin-top: 4px;
+    }
+    .opt-grid label {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      font-weight: 400;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .legend {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 0 0 8px;
+    }
+    code {
+      font-size: 12px;
+      background: #eef2f6;
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+    @media (max-width: 720px) {
+      .row-2, .row-3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar no-print">
+    <h1>TraceRoot · Client discovery</h1>
+    <div class="toolbar-actions">
+      <span id="saveStatus" class="inline" style="font-size:12px;color:var(--muted)"></span>
+      <button type="button" class="ghost" id="btnClear">Clear saved</button>
+      <button type="button" class="ghost" id="btnDownload">Download answers (JSON)</button>
+      <button type="button" class="primary" id="btnPrint">Print</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="intro">
+      <p><strong>Purpose.</strong> Help us configure TraceRoot for your inbound import workflow.</p>
+      <p><strong>How to fill.</strong> Type answers in this form (works on phone or laptop). Progress saves automatically in this browser. When finished, click <strong>Download answers (JSON)</strong> and email that file to your TraceRoot contact — or use <strong>Print</strong> if you want a paper/PDF copy of what you entered.</p>
+      <p>Leave blank or write <em>TBD</em> where needed. Attach sample letterhead / invoice PDFs in the same email if you have them.</p>
+    </div>
+
+    <!-- A Identity -->
+    <section class="part" id="part-a">
+      <h2>A. Company &amp; setup</h2>
+      <p class="lead">Who we are onboarding and how TraceRoot should run.</p>
+
+      <div class="field">
+        <label for="company">Company / legal buyer name</label>
+        <span class="hint">Trading or legal name TraceRoot will operate under.</span>
+        <input id="company" type="text" name="company" placeholder="e.g. Northwind Trading LLC" />
+      </div>
+
+      <div class="field">
+        <span class="field-label">Workflow</span>
+        <span class="hint">This worksheet is for <strong>inbound import</strong> (buy / bring goods in).</span>
+        <input type="hidden" name="direction" value="inbound" />
+      </div>
+      <div class="field">
+        <span class="field-label">ERP / accounting posture</span>
+        <span class="hint">How aggressively should TraceRoot draft posts?</span>
+        <div class="checks" style="margin-top:6px">
+          <label><input type="radio" name="erpMode" value="dry_run" checked /> Simulate only (dry run)</label>
+          <label><input type="radio" name="erpMode" value="sandbox" /> Sandbox / test company</label>
+          <label><input type="radio" name="erpMode" value="live" /> Live ERP later</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="erpSystem">ERP system (if known)</label>
+        <input id="erpSystem" type="text" name="erpSystem" placeholder="e.g. QuickBooks Online, NetSuite, none yet" />
+      </div>
+
+      <p class="hint">TraceRoot uses a shared agent mailbox with a private +tag per client. You do <strong>not</strong> need to provide an agent inbox address.</p>
+    </section>
+
+    <!-- B Parties -->
+    <section class="part break-before" id="part-b">
+      <h2>B. People &amp; counterparties</h2>
+      <p class="lead">Internal teams and external partners — names and emails used for chases and workflows.</p>
+
+      <h3>Internal (your organization)</h3>
+      <p class="legend">Write a role in each row. Suggested: Buyer, Procurement, Accounts Payable, Agent / ops, or your own.</p>
+      <table class="sheet">
+        <thead>
+          <tr>
+            <th style="width:28%">Name / team</th>
+            <th style="width:24%">Role</th>
+            <th style="width:36%">Email</th>
+            <th style="width:12%">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="text" name="int_name_1" /></td>
+            <td>
+              <input type="text" name="int_role_1" placeholder="Buyer / Procurement / AP / …" />
+            </td>
+            <td><input type="email" name="int_email_1" /></td>
+            <td><input type="text" name="int_notes_1" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="int_name_2" /></td>
+            <td>
+              <input type="text" name="int_role_2" placeholder="Buyer / Procurement / AP / …" />
+            </td>
+            <td><input type="email" name="int_email_2" /></td>
+            <td><input type="text" name="int_notes_2" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="int_name_3" /></td>
+            <td>
+              <input type="text" name="int_role_3" placeholder="Buyer / Procurement / AP / …" />
+            </td>
+            <td><input type="email" name="int_email_3" /></td>
+            <td><input type="text" name="int_notes_3" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="int_name_4" /></td>
+            <td>
+              <input type="text" name="int_role_4" placeholder="Buyer / Procurement / AP / …" />
+            </td>
+            <td><input type="email" name="int_email_4" /></td>
+            <td><input type="text" name="int_notes_4" /></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>External (suppliers, logistics, brokers)</h3>
+      <p class="legend">Write a role in each row. Suggested: Supplier, Freight forwarder, Customs broker, Warehouse, Trucker, Ocean carrier, Customer, or your own.</p>
+      <table class="sheet">
+        <thead>
+          <tr>
+            <th style="width:28%">Company / person</th>
+            <th style="width:24%">Role</th>
+            <th style="width:36%">Email</th>
+            <th style="width:12%">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="text" name="ext_name_1" /></td>
+            <td>
+              <input type="text" name="ext_role_1" placeholder="Supplier / Broker / WH / …" />
+            </td>
+            <td><input type="email" name="ext_email_1" /></td>
+            <td><input type="text" name="ext_notes_1" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="ext_name_2" /></td>
+            <td>
+              <input type="text" name="ext_role_2" placeholder="Supplier / Broker / WH / …" />
+            </td>
+            <td><input type="email" name="ext_email_2" /></td>
+            <td><input type="text" name="ext_notes_2" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="ext_name_3" /></td>
+            <td>
+              <input type="text" name="ext_role_3" placeholder="Supplier / Broker / WH / …" />
+            </td>
+            <td><input type="email" name="ext_email_3" /></td>
+            <td><input type="text" name="ext_notes_3" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="ext_name_4" /></td>
+            <td>
+              <input type="text" name="ext_role_4" placeholder="Supplier / Broker / WH / …" />
+            </td>
+            <td><input type="email" name="ext_email_4" /></td>
+            <td><input type="text" name="ext_notes_4" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="ext_name_5" /></td>
+            <td>
+              <input type="text" name="ext_role_5" placeholder="Supplier / Broker / WH / …" />
+            </td>
+            <td><input type="email" name="ext_email_5" /></td>
+            <td><input type="text" name="ext_notes_5" /></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="field">
+        <label for="customRoles">Custom roles not listed above</label>
+        <textarea id="customRoles" name="customRoles" placeholder="e.g. Plant QA — plant.qa@client.com (internal)"></textarea>
+      </div>
+    </section>
+
+    <!-- C Suppliers -->
+    <section class="part break-before" id="part-c">
+      <h2>C. Supplier catalog <span class="badge">Inbound</span></h2>
+      <p class="lead">Defaults used when opening a new inbound shipment.</p>
+
+      <table class="sheet">
+        <thead>
+          <tr>
+            <th>Supplier name</th>
+            <th>Email</th>
+            <th>Country</th>
+            <th>Incoterms</th>
+            <th>Payment terms</th>
+            <th>Unit</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="text" name="sup_name_1" /></td>
+            <td><input type="email" name="sup_email_1" /></td>
+            <td><input type="text" name="sup_country_1" placeholder="CN" /></td>
+            <td><input type="text" name="sup_incoterms_1" placeholder="FOB" /></td>
+            <td><input type="text" name="sup_pay_1" placeholder="Net 30" /></td>
+            <td>
+              <input type="text" name="sup_unit_1" placeholder="lb / kg / mt / ea / cs" />
+            </td>
+          </tr>
+          <tr>
+            <td><input type="text" name="sup_name_2" /></td>
+            <td><input type="email" name="sup_email_2" /></td>
+            <td><input type="text" name="sup_country_2" /></td>
+            <td><input type="text" name="sup_incoterms_2" /></td>
+            <td><input type="text" name="sup_pay_2" /></td>
+            <td>
+              <input type="text" name="sup_unit_2" placeholder="lb / kg / mt / ea / cs" />
+            </td>
+          </tr>
+          <tr>
+            <td><input type="text" name="sup_name_3" /></td>
+            <td><input type="email" name="sup_email_3" /></td>
+            <td><input type="text" name="sup_country_3" /></td>
+            <td><input type="text" name="sup_incoterms_3" /></td>
+            <td><input type="text" name="sup_pay_3" /></td>
+            <td>
+              <input type="text" name="sup_unit_3" placeholder="lb / kg / mt / ea / cs" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Products / SKUs (for at least one primary supplier)</h3>
+      <table class="sheet">
+        <thead>
+          <tr>
+            <th>Supplier</th>
+            <th>SKU</th>
+            <th>Description</th>
+            <th>Typical qty</th>
+            <th>Unit price</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="text" name="sku_sup_1" /></td>
+            <td><input type="text" name="sku_1" /></td>
+            <td><input type="text" name="sku_desc_1" /></td>
+            <td><input type="text" name="sku_qty_1" /></td>
+            <td><input type="text" name="sku_price_1" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="sku_sup_2" /></td>
+            <td><input type="text" name="sku_2" /></td>
+            <td><input type="text" name="sku_desc_2" /></td>
+            <td><input type="text" name="sku_qty_2" /></td>
+            <td><input type="text" name="sku_price_2" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="sku_sup_3" /></td>
+            <td><input type="text" name="sku_3" /></td>
+            <td><input type="text" name="sku_desc_3" /></td>
+            <td><input type="text" name="sku_qty_3" /></td>
+            <td><input type="text" name="sku_price_3" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="sku_sup_4" /></td>
+            <td><input type="text" name="sku_4" /></td>
+            <td><input type="text" name="sku_desc_4" /></td>
+            <td><input type="text" name="sku_qty_4" /></td>
+            <td><input type="text" name="sku_price_4" /></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="field">
+        <label for="containerPrefix">Demo / preferred container prefix (optional)</label>
+        <input id="containerPrefix" type="text" name="containerPrefix" placeholder="e.g. TEMU" />
+      </div>
+    </section>
+
+    <!-- D Stages -->
+    <section class="part break-before" id="part-d">
+      <h2>D. Workflow stages</h2>
+      <p class="lead">Suggested inbound spine below — rename, mark N/A, set what unlocks each stage, and pick one TraceRoot capability (or none for process-only).</p>
+
+      <div class="field">
+        <label for="spineNotes">Overall process notes (optional)</label>
+        <textarea id="spineNotes" name="spineNotes" placeholder="Anything unusual about how your shipments flow end-to-end…"></textarea>
+      </div>
+
+      <!-- Stage cards (inbound spine) -->
+      <div class="stage">
+        <div class="stage-title">
+          <strong>1. Customer order</strong>
+          <label class="inline"><input type="checkbox" name="st1_na" /> Stage N/A for us</label>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>Your name for this stage</label>
+            <input type="text" name="st1_label" value="Customer order" />
+          </div>
+          <div class="field">
+            <label>Depends on (earlier stages)</label>
+            <input type="text" name="st1_depends" placeholder="None — first stage" />
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>What opens this stage?</label>
+            <div class="opt-grid">
+<label><input type="radio" name="st1_trigger" value="Human gate" checked /> Human gate</label>
+<label><input type="radio" name="st1_trigger" value="Document in" /> Document in</label>
+<label><input type="radio" name="st1_trigger" value="System / automatic" /> System / automatic</label>
+<label><input type="radio" name="st1_trigger" value="Physical event" /> Physical event</label>
+<label><input type="radio" name="st1_trigger" value="Timer / SLA" /> Timer / SLA</label>
+</div>
+          </div>
+          <div class="field">
+            <label>TraceRoot capability</label>
+            <div class="opt-grid">
+<label><input type="radio" name="st1_cap" value="" /> None (playbook only)</label>
+<label><input type="radio" name="st1_cap" value="Customer order" checked /> Customer order</label>
+<label><input type="radio" name="st1_cap" value="PO issue" /> PO issue</label>
+<label><input type="radio" name="st1_cap" value="Docs intake" /> Docs intake</label>
+<label><input type="radio" name="st1_cap" value="Freight booking" /> Freight booking</label>
+<label><input type="radio" name="st1_cap" value="Payment vs docs" /> Payment vs docs</label>
+<label><input type="radio" name="st1_cap" value="Telex release" /> Telex release</label>
+<label><input type="radio" name="st1_cap" value="ISF" /> ISF</label>
+<label><input type="radio" name="st1_cap" value="Vessel tracking" /> Vessel tracking</label>
+<label><input type="radio" name="st1_cap" value="Customs" /> Customs</label>
+<label><input type="radio" name="st1_cap" value="Drayage" /> Drayage</label>
+<label><input type="radio" name="st1_cap" value="Receiving" /> Receiving</label>
+<label><input type="radio" name="st1_cap" value="Put-away" /> Put-away</label>
+</div>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label">Collect details for</span>
+          <div class="checks">
+            <label><input type="checkbox" name="st1_docs" checked /> Documents</label>
+            <label><input type="checkbox" name="st1_fail" checked /> Failures &amp; reminders</label>
+            <label><input type="checkbox" name="st1_reply" /> Auto-replies</label>
+            <label><input type="checkbox" name="st1_erp" checked /> ERP posting</label>
+            <label><input type="checkbox" name="st1_story" /> Stage story</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Stage notes</label>
+          <textarea name="st1_notes" rows="2"></textarea>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="stage-title">
+          <strong>2. Supplier PO</strong>
+          <label class="inline"><input type="checkbox" name="st2_na" /> Stage N/A for us</label>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>Your name for this stage</label>
+            <input type="text" name="st2_label" value="Supplier PO" />
+          </div>
+          <div class="field">
+            <label>Depends on</label>
+            <input type="text" name="st2_depends" value="Customer order" />
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>What opens this stage?</label>
+            <div class="opt-grid">
+<label><input type="radio" name="st2_trigger" value="Human gate" checked /> Human gate</label>
+<label><input type="radio" name="st2_trigger" value="Document in" /> Document in</label>
+<label><input type="radio" name="st2_trigger" value="System / automatic" /> System / automatic</label>
+<label><input type="radio" name="st2_trigger" value="Physical event" /> Physical event</label>
+<label><input type="radio" name="st2_trigger" value="Timer / SLA" /> Timer / SLA</label>
+</div>
+          </div>
+          <div class="field">
+            <label>TraceRoot capability</label>
+            <div class="opt-grid">
+<label><input type="radio" name="st2_cap" value="" /> None (playbook only)</label>
+<label><input type="radio" name="st2_cap" value="Customer order" /> Customer order</label>
+<label><input type="radio" name="st2_cap" value="PO issue" checked /> PO issue</label>
+<label><input type="radio" name="st2_cap" value="Docs intake" /> Docs intake</label>
+<label><input type="radio" name="st2_cap" value="Freight booking" /> Freight booking</label>
+<label><input type="radio" name="st2_cap" value="Payment vs docs" /> Payment vs docs</label>
+<label><input type="radio" name="st2_cap" value="Telex release" /> Telex release</label>
+<label><input type="radio" name="st2_cap" value="ISF" /> ISF</label>
+<label><input type="radio" name="st2_cap" value="Vessel tracking" /> Vessel tracking</label>
+<label><input type="radio" name="st2_cap" value="Customs" /> Customs</label>
+<label><input type="radio" name="st2_cap" value="Drayage" /> Drayage</label>
+<label><input type="radio" name="st2_cap" value="Receiving" /> Receiving</label>
+<label><input type="radio" name="st2_cap" value="Put-away" /> Put-away</label>
+</div>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label">Collect details for</span>
+          <div class="checks">
+            <label><input type="checkbox" name="st2_docs" checked /> Documents</label>
+            <label><input type="checkbox" name="st2_fail" checked /> Failures &amp; reminders</label>
+            <label><input type="checkbox" name="st2_reply" /> Auto-replies</label>
+            <label><input type="checkbox" name="st2_erp" checked /> ERP posting</label>
+            <label><input type="checkbox" name="st2_story" checked /> Stage story</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Stage notes</label>
+          <textarea name="st2_notes" rows="2"></textarea>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="stage-title">
+          <strong>3. Supplier docs</strong>
+          <label class="inline"><input type="checkbox" name="st3_na" /> Stage N/A for us</label>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>Your name for this stage</label>
+            <input type="text" name="st3_label" value="Supplier docs" />
+          </div>
+          <div class="field">
+            <label>Depends on</label>
+            <input type="text" name="st3_depends" value="Supplier PO" />
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>What opens this stage?</label>
+            <div class="opt-grid">
+<label><input type="radio" name="st3_trigger" value="Human gate" /> Human gate</label>
+<label><input type="radio" name="st3_trigger" value="Document in" checked /> Document in</label>
+<label><input type="radio" name="st3_trigger" value="System / automatic" /> System / automatic</label>
+<label><input type="radio" name="st3_trigger" value="Physical event" /> Physical event</label>
+<label><input type="radio" name="st3_trigger" value="Timer / SLA" /> Timer / SLA</label>
+</div>
+          </div>
+          <div class="field">
+            <label>TraceRoot capability</label>
+            <div class="opt-grid">
+<label><input type="radio" name="st3_cap" value="" /> None (playbook only)</label>
+<label><input type="radio" name="st3_cap" value="Customer order" /> Customer order</label>
+<label><input type="radio" name="st3_cap" value="PO issue" /> PO issue</label>
+<label><input type="radio" name="st3_cap" value="Docs intake" checked /> Docs intake</label>
+<label><input type="radio" name="st3_cap" value="Freight booking" /> Freight booking</label>
+<label><input type="radio" name="st3_cap" value="Payment vs docs" /> Payment vs docs</label>
+<label><input type="radio" name="st3_cap" value="Telex release" /> Telex release</label>
+<label><input type="radio" name="st3_cap" value="ISF" /> ISF</label>
+<label><input type="radio" name="st3_cap" value="Vessel tracking" /> Vessel tracking</label>
+<label><input type="radio" name="st3_cap" value="Customs" /> Customs</label>
+<label><input type="radio" name="st3_cap" value="Drayage" /> Drayage</label>
+<label><input type="radio" name="st3_cap" value="Receiving" /> Receiving</label>
+<label><input type="radio" name="st3_cap" value="Put-away" /> Put-away</label>
+</div>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label">Collect details for</span>
+          <div class="checks">
+            <label><input type="checkbox" name="st3_docs" checked /> Documents</label>
+            <label><input type="checkbox" name="st3_fail" checked /> Failures &amp; reminders</label>
+            <label><input type="checkbox" name="st3_reply" checked /> Auto-replies</label>
+            <label><input type="checkbox" name="st3_erp" /> ERP posting</label>
+            <label><input type="checkbox" name="st3_story" checked /> Stage story</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Stage notes</label>
+          <textarea name="st3_notes" rows="2"></textarea>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="stage-title">
+          <strong>4. Freight booking</strong>
+          <label class="inline"><input type="checkbox" name="st4_na" /> Stage N/A for us</label>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>Your name for this stage</label>
+            <input type="text" name="st4_label" value="Freight booking" />
+          </div>
+          <div class="field">
+            <label>Depends on</label>
+            <input type="text" name="st4_depends" value="Supplier PO" />
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>What opens this stage?</label>
+            <div class="opt-grid">
+<label><input type="radio" name="st4_trigger" value="Human gate" checked /> Human gate</label>
+<label><input type="radio" name="st4_trigger" value="Document in" /> Document in</label>
+<label><input type="radio" name="st4_trigger" value="System / automatic" /> System / automatic</label>
+<label><input type="radio" name="st4_trigger" value="Physical event" /> Physical event</label>
+<label><input type="radio" name="st4_trigger" value="Timer / SLA" /> Timer / SLA</label>
+</div>
+          </div>
+          <div class="field">
+            <label>TraceRoot capability</label>
+            <div class="opt-grid">
+<label><input type="radio" name="st4_cap" value="" /> None (playbook only)</label>
+<label><input type="radio" name="st4_cap" value="Customer order" /> Customer order</label>
+<label><input type="radio" name="st4_cap" value="PO issue" /> PO issue</label>
+<label><input type="radio" name="st4_cap" value="Docs intake" /> Docs intake</label>
+<label><input type="radio" name="st4_cap" value="Freight booking" checked /> Freight booking</label>
+<label><input type="radio" name="st4_cap" value="Payment vs docs" /> Payment vs docs</label>
+<label><input type="radio" name="st4_cap" value="Telex release" /> Telex release</label>
+<label><input type="radio" name="st4_cap" value="ISF" /> ISF</label>
+<label><input type="radio" name="st4_cap" value="Vessel tracking" /> Vessel tracking</label>
+<label><input type="radio" name="st4_cap" value="Customs" /> Customs</label>
+<label><input type="radio" name="st4_cap" value="Drayage" /> Drayage</label>
+<label><input type="radio" name="st4_cap" value="Receiving" /> Receiving</label>
+<label><input type="radio" name="st4_cap" value="Put-away" /> Put-away</label>
+</div>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label">Collect details for</span>
+          <div class="checks">
+            <label><input type="checkbox" name="st4_docs" checked /> Documents</label>
+            <label><input type="checkbox" name="st4_fail" checked /> Failures &amp; reminders</label>
+            <label><input type="checkbox" name="st4_reply" /> Auto-replies</label>
+            <label><input type="checkbox" name="st4_erp" checked /> ERP posting</label>
+            <label><input type="checkbox" name="st4_story" /> Stage story</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Stage notes</label>
+          <textarea name="st4_notes" rows="2" placeholder="e.g. Skip when Incoterms are DDP / DAP"></textarea>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="stage-title">
+          <strong>5. Pay vs docs</strong>
+          <label class="inline"><input type="checkbox" name="st5_na" /> Stage N/A for us</label>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>Your name for this stage</label>
+            <input type="text" name="st5_label" value="Pay vs docs" />
+          </div>
+          <div class="field">
+            <label>Depends on</label>
+            <input type="text" name="st5_depends" value="Supplier docs" />
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>What opens this stage?</label>
+            <div class="opt-grid">
+<label><input type="radio" name="st5_trigger" value="Human gate" checked /> Human gate</label>
+<label><input type="radio" name="st5_trigger" value="Document in" /> Document in</label>
+<label><input type="radio" name="st5_trigger" value="System / automatic" /> System / automatic</label>
+<label><input type="radio" name="st5_trigger" value="Physical event" /> Physical event</label>
+<label><input type="radio" name="st5_trigger" value="Timer / SLA" /> Timer / SLA</label>
+</div>
+          </div>
+          <div class="field">
+            <label>TraceRoot capability</label>
+            <div class="opt-grid">
+<label><input type="radio" name="st5_cap" value="" /> None (playbook only)</label>
+<label><input type="radio" name="st5_cap" value="Customer order" /> Customer order</label>
+<label><input type="radio" name="st5_cap" value="PO issue" /> PO issue</label>
+<label><input type="radio" name="st5_cap" value="Docs intake" /> Docs intake</label>
+<label><input type="radio" name="st5_cap" value="Freight booking" /> Freight booking</label>
+<label><input type="radio" name="st5_cap" value="Payment vs docs" checked /> Payment vs docs</label>
+<label><input type="radio" name="st5_cap" value="Telex release" /> Telex release</label>
+<label><input type="radio" name="st5_cap" value="ISF" /> ISF</label>
+<label><input type="radio" name="st5_cap" value="Vessel tracking" /> Vessel tracking</label>
+<label><input type="radio" name="st5_cap" value="Customs" /> Customs</label>
+<label><input type="radio" name="st5_cap" value="Drayage" /> Drayage</label>
+<label><input type="radio" name="st5_cap" value="Receiving" /> Receiving</label>
+<label><input type="radio" name="st5_cap" value="Put-away" /> Put-away</label>
+</div>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label">Collect details for</span>
+          <div class="checks">
+            <label><input type="checkbox" name="st5_docs" checked /> Documents</label>
+            <label><input type="checkbox" name="st5_fail" checked /> Failures &amp; reminders</label>
+            <label><input type="checkbox" name="st5_reply" /> Auto-replies</label>
+            <label><input type="checkbox" name="st5_erp" checked /> ERP posting</label>
+            <label><input type="checkbox" name="st5_story" /> Stage story</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Stage notes</label>
+          <textarea name="st5_notes" rows="2"></textarea>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="stage-title">
+          <strong>6. Telex release</strong>
+          <label class="inline"><input type="checkbox" name="st6_na" /> Stage N/A for us</label>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>Your name for this stage</label>
+            <input type="text" name="st6_label" value="Telex release" />
+          </div>
+          <div class="field">
+            <label>Depends on</label>
+            <input type="text" name="st6_depends" value="Pay vs docs" />
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>What opens this stage?</label>
+            <div class="opt-grid">
+<label><input type="radio" name="st6_trigger" value="Human gate" checked /> Human gate</label>
+<label><input type="radio" name="st6_trigger" value="Document in" /> Document in</label>
+<label><input type="radio" name="st6_trigger" value="System / automatic" /> System / automatic</label>
+<label><input type="radio" name="st6_trigger" value="Physical event" /> Physical event</label>
+<label><input type="radio" name="st6_trigger" value="Timer / SLA" /> Timer / SLA</label>
+</div>
+          </div>
+          <div class="field">
+            <label>TraceRoot capability</label>
+            <div class="opt-grid">
+<label><input type="radio" name="st6_cap" value="" /> None (playbook only)</label>
+<label><input type="radio" name="st6_cap" value="Customer order" /> Customer order</label>
+<label><input type="radio" name="st6_cap" value="PO issue" /> PO issue</label>
+<label><input type="radio" name="st6_cap" value="Docs intake" /> Docs intake</label>
+<label><input type="radio" name="st6_cap" value="Freight booking" /> Freight booking</label>
+<label><input type="radio" name="st6_cap" value="Payment vs docs" /> Payment vs docs</label>
+<label><input type="radio" name="st6_cap" value="Telex release" checked /> Telex release</label>
+<label><input type="radio" name="st6_cap" value="ISF" /> ISF</label>
+<label><input type="radio" name="st6_cap" value="Vessel tracking" /> Vessel tracking</label>
+<label><input type="radio" name="st6_cap" value="Customs" /> Customs</label>
+<label><input type="radio" name="st6_cap" value="Drayage" /> Drayage</label>
+<label><input type="radio" name="st6_cap" value="Receiving" /> Receiving</label>
+<label><input type="radio" name="st6_cap" value="Put-away" /> Put-away</label>
+</div>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label">Collect details for</span>
+          <div class="checks">
+            <label><input type="checkbox" name="st6_docs" checked /> Documents</label>
+            <label><input type="checkbox" name="st6_fail" checked /> Failures &amp; reminders</label>
+            <label><input type="checkbox" name="st6_reply" /> Auto-replies</label>
+            <label><input type="checkbox" name="st6_erp" checked /> ERP posting</label>
+            <label><input type="checkbox" name="st6_story" /> Stage story</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Stage notes</label>
+          <textarea name="st6_notes" rows="2"></textarea>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="stage-title">
+          <strong>7. ISF</strong>
+          <label class="inline"><input type="checkbox" name="st7_na" /> Stage N/A for us</label>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>Your name for this stage</label>
+            <input type="text" name="st7_label" value="ISF" />
+          </div>
+          <div class="field">
+            <label>Depends on</label>
+            <input type="text" name="st7_depends" value="Supplier docs" />
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>What opens this stage?</label>
+            <div class="opt-grid">
+<label><input type="radio" name="st7_trigger" value="Human gate" checked /> Human gate</label>
+<label><input type="radio" name="st7_trigger" value="Document in" /> Document in</label>
+<label><input type="radio" name="st7_trigger" value="System / automatic" /> System / automatic</label>
+<label><input type="radio" name="st7_trigger" value="Physical event" /> Physical event</label>
+<label><input type="radio" name="st7_trigger" value="Timer / SLA" /> Timer / SLA</label>
+</div>
+          </div>
+          <div class="field">
+            <label>TraceRoot capability</label>
+            <div class="opt-grid">
+<label><input type="radio" name="st7_cap" value="" /> None (playbook only)</label>
+<label><input type="radio" name="st7_cap" value="Customer order" /> Customer order</label>
+<label><input type="radio" name="st7_cap" value="PO issue" /> PO issue</label>
+<label><input type="radio" name="st7_cap" value="Docs intake" /> Docs intake</label>
+<label><input type="radio" name="st7_cap" value="Freight booking" /> Freight booking</label>
+<label><input type="radio" name="st7_cap" value="Payment vs docs" /> Payment vs docs</label>
+<label><input type="radio" name="st7_cap" value="Telex release" /> Telex release</label>
+<label><input type="radio" name="st7_cap" value="ISF" checked /> ISF</label>
+<label><input type="radio" name="st7_cap" value="Vessel tracking" /> Vessel tracking</label>
+<label><input type="radio" name="st7_cap" value="Customs" /> Customs</label>
+<label><input type="radio" name="st7_cap" value="Drayage" /> Drayage</label>
+<label><input type="radio" name="st7_cap" value="Receiving" /> Receiving</label>
+<label><input type="radio" name="st7_cap" value="Put-away" /> Put-away</label>
+</div>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label">Collect details for</span>
+          <div class="checks">
+            <label><input type="checkbox" name="st7_docs" checked /> Documents</label>
+            <label><input type="checkbox" name="st7_fail" checked /> Failures &amp; reminders</label>
+            <label><input type="checkbox" name="st7_reply" /> Auto-replies</label>
+            <label><input type="checkbox" name="st7_erp" /> ERP posting</label>
+            <label><input type="checkbox" name="st7_story" /> Stage story</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Stage notes</label>
+          <textarea name="st7_notes" rows="2"></textarea>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="stage-title">
+          <strong>8. Vessel tracking</strong>
+          <label class="inline"><input type="checkbox" name="st8_na" /> Stage N/A for us</label>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>Your name for this stage</label>
+            <input type="text" name="st8_label" value="Vessel tracking" />
+          </div>
+          <div class="field">
+            <label>Depends on</label>
+            <input type="text" name="st8_depends" value="Freight booking" />
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>What opens this stage?</label>
+            <div class="opt-grid">
+<label><input type="radio" name="st8_trigger" value="Human gate" /> Human gate</label>
+<label><input type="radio" name="st8_trigger" value="Document in" /> Document in</label>
+<label><input type="radio" name="st8_trigger" value="System / automatic" /> System / automatic</label>
+<label><input type="radio" name="st8_trigger" value="Physical event" /> Physical event</label>
+<label><input type="radio" name="st8_trigger" value="Timer / SLA" checked /> Timer / SLA</label>
+</div>
+          </div>
+          <div class="field">
+            <label>TraceRoot capability</label>
+            <div class="opt-grid">
+<label><input type="radio" name="st8_cap" value="" /> None (playbook only)</label>
+<label><input type="radio" name="st8_cap" value="Customer order" /> Customer order</label>
+<label><input type="radio" name="st8_cap" value="PO issue" /> PO issue</label>
+<label><input type="radio" name="st8_cap" value="Docs intake" /> Docs intake</label>
+<label><input type="radio" name="st8_cap" value="Freight booking" /> Freight booking</label>
+<label><input type="radio" name="st8_cap" value="Payment vs docs" /> Payment vs docs</label>
+<label><input type="radio" name="st8_cap" value="Telex release" /> Telex release</label>
+<label><input type="radio" name="st8_cap" value="ISF" /> ISF</label>
+<label><input type="radio" name="st8_cap" value="Vessel tracking" checked /> Vessel tracking</label>
+<label><input type="radio" name="st8_cap" value="Customs" /> Customs</label>
+<label><input type="radio" name="st8_cap" value="Drayage" /> Drayage</label>
+<label><input type="radio" name="st8_cap" value="Receiving" /> Receiving</label>
+<label><input type="radio" name="st8_cap" value="Put-away" /> Put-away</label>
+</div>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label">Collect details for</span>
+          <div class="checks">
+            <label><input type="checkbox" name="st8_docs" /> Documents</label>
+            <label><input type="checkbox" name="st8_fail" /> Failures &amp; reminders</label>
+            <label><input type="checkbox" name="st8_reply" checked /> Auto-replies</label>
+            <label><input type="checkbox" name="st8_erp" /> ERP posting</label>
+            <label><input type="checkbox" name="st8_story" /> Stage story</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Stage notes</label>
+          <textarea name="st8_notes" rows="2"></textarea>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="stage-title">
+          <strong>9. Customs</strong>
+          <label class="inline"><input type="checkbox" name="st9_na" /> Stage N/A for us</label>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>Your name for this stage</label>
+            <input type="text" name="st9_label" value="Customs" />
+          </div>
+          <div class="field">
+            <label>Depends on</label>
+            <input type="text" name="st9_depends" value="ISF" />
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>What opens this stage?</label>
+            <div class="opt-grid">
+<label><input type="radio" name="st9_trigger" value="Human gate" checked /> Human gate</label>
+<label><input type="radio" name="st9_trigger" value="Document in" /> Document in</label>
+<label><input type="radio" name="st9_trigger" value="System / automatic" /> System / automatic</label>
+<label><input type="radio" name="st9_trigger" value="Physical event" /> Physical event</label>
+<label><input type="radio" name="st9_trigger" value="Timer / SLA" /> Timer / SLA</label>
+</div>
+          </div>
+          <div class="field">
+            <label>TraceRoot capability</label>
+            <div class="opt-grid">
+<label><input type="radio" name="st9_cap" value="" /> None (playbook only)</label>
+<label><input type="radio" name="st9_cap" value="Customer order" /> Customer order</label>
+<label><input type="radio" name="st9_cap" value="PO issue" /> PO issue</label>
+<label><input type="radio" name="st9_cap" value="Docs intake" /> Docs intake</label>
+<label><input type="radio" name="st9_cap" value="Freight booking" /> Freight booking</label>
+<label><input type="radio" name="st9_cap" value="Payment vs docs" /> Payment vs docs</label>
+<label><input type="radio" name="st9_cap" value="Telex release" /> Telex release</label>
+<label><input type="radio" name="st9_cap" value="ISF" /> ISF</label>
+<label><input type="radio" name="st9_cap" value="Vessel tracking" /> Vessel tracking</label>
+<label><input type="radio" name="st9_cap" value="Customs" checked /> Customs</label>
+<label><input type="radio" name="st9_cap" value="Drayage" /> Drayage</label>
+<label><input type="radio" name="st9_cap" value="Receiving" /> Receiving</label>
+<label><input type="radio" name="st9_cap" value="Put-away" /> Put-away</label>
+</div>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label">Collect details for</span>
+          <div class="checks">
+            <label><input type="checkbox" name="st9_docs" checked /> Documents</label>
+            <label><input type="checkbox" name="st9_fail" checked /> Failures &amp; reminders</label>
+            <label><input type="checkbox" name="st9_reply" checked /> Auto-replies</label>
+            <label><input type="checkbox" name="st9_erp" checked /> ERP posting</label>
+            <label><input type="checkbox" name="st9_story" /> Stage story</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Stage notes</label>
+          <textarea name="st9_notes" rows="2"></textarea>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="stage-title">
+          <strong>10. Drayage</strong>
+          <label class="inline"><input type="checkbox" name="st10_na" /> Stage N/A for us</label>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>Your name for this stage</label>
+            <input type="text" name="st10_label" value="Drayage" />
+          </div>
+          <div class="field">
+            <label>Depends on</label>
+            <input type="text" name="st10_depends" value="Telex release, Customs" />
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>What opens this stage?</label>
+            <div class="opt-grid">
+<label><input type="radio" name="st10_trigger" value="Human gate" checked /> Human gate</label>
+<label><input type="radio" name="st10_trigger" value="Document in" /> Document in</label>
+<label><input type="radio" name="st10_trigger" value="System / automatic" /> System / automatic</label>
+<label><input type="radio" name="st10_trigger" value="Physical event" /> Physical event</label>
+<label><input type="radio" name="st10_trigger" value="Timer / SLA" /> Timer / SLA</label>
+</div>
+          </div>
+          <div class="field">
+            <label>TraceRoot capability</label>
+            <div class="opt-grid">
+<label><input type="radio" name="st10_cap" value="" /> None (playbook only)</label>
+<label><input type="radio" name="st10_cap" value="Customer order" /> Customer order</label>
+<label><input type="radio" name="st10_cap" value="PO issue" /> PO issue</label>
+<label><input type="radio" name="st10_cap" value="Docs intake" /> Docs intake</label>
+<label><input type="radio" name="st10_cap" value="Freight booking" /> Freight booking</label>
+<label><input type="radio" name="st10_cap" value="Payment vs docs" /> Payment vs docs</label>
+<label><input type="radio" name="st10_cap" value="Telex release" /> Telex release</label>
+<label><input type="radio" name="st10_cap" value="ISF" /> ISF</label>
+<label><input type="radio" name="st10_cap" value="Vessel tracking" /> Vessel tracking</label>
+<label><input type="radio" name="st10_cap" value="Customs" /> Customs</label>
+<label><input type="radio" name="st10_cap" value="Drayage" checked /> Drayage</label>
+<label><input type="radio" name="st10_cap" value="Receiving" /> Receiving</label>
+<label><input type="radio" name="st10_cap" value="Put-away" /> Put-away</label>
+</div>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label">Collect details for</span>
+          <div class="checks">
+            <label><input type="checkbox" name="st10_docs" checked /> Documents</label>
+            <label><input type="checkbox" name="st10_fail" checked /> Failures &amp; reminders</label>
+            <label><input type="checkbox" name="st10_reply" /> Auto-replies</label>
+            <label><input type="checkbox" name="st10_erp" checked /> ERP posting</label>
+            <label><input type="checkbox" name="st10_story" /> Stage story</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Stage notes</label>
+          <textarea name="st10_notes" rows="2"></textarea>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="stage-title">
+          <strong>11. Receiving</strong>
+          <label class="inline"><input type="checkbox" name="st11_na" /> Stage N/A for us</label>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>Your name for this stage</label>
+            <input type="text" name="st11_label" value="Receiving" />
+          </div>
+          <div class="field">
+            <label>Depends on</label>
+            <input type="text" name="st11_depends" value="Drayage" />
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>What opens this stage?</label>
+            <div class="opt-grid">
+<label><input type="radio" name="st11_trigger" value="Human gate" /> Human gate</label>
+<label><input type="radio" name="st11_trigger" value="Document in" /> Document in</label>
+<label><input type="radio" name="st11_trigger" value="System / automatic" /> System / automatic</label>
+<label><input type="radio" name="st11_trigger" value="Physical event" checked /> Physical event</label>
+<label><input type="radio" name="st11_trigger" value="Timer / SLA" /> Timer / SLA</label>
+</div>
+          </div>
+          <div class="field">
+            <label>TraceRoot capability</label>
+            <div class="opt-grid">
+<label><input type="radio" name="st11_cap" value="" /> None (playbook only)</label>
+<label><input type="radio" name="st11_cap" value="Customer order" /> Customer order</label>
+<label><input type="radio" name="st11_cap" value="PO issue" /> PO issue</label>
+<label><input type="radio" name="st11_cap" value="Docs intake" /> Docs intake</label>
+<label><input type="radio" name="st11_cap" value="Freight booking" /> Freight booking</label>
+<label><input type="radio" name="st11_cap" value="Payment vs docs" /> Payment vs docs</label>
+<label><input type="radio" name="st11_cap" value="Telex release" /> Telex release</label>
+<label><input type="radio" name="st11_cap" value="ISF" /> ISF</label>
+<label><input type="radio" name="st11_cap" value="Vessel tracking" /> Vessel tracking</label>
+<label><input type="radio" name="st11_cap" value="Customs" /> Customs</label>
+<label><input type="radio" name="st11_cap" value="Drayage" /> Drayage</label>
+<label><input type="radio" name="st11_cap" value="Receiving" checked /> Receiving</label>
+<label><input type="radio" name="st11_cap" value="Put-away" /> Put-away</label>
+</div>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label">Collect details for</span>
+          <div class="checks">
+            <label><input type="checkbox" name="st11_docs" checked /> Documents</label>
+            <label><input type="checkbox" name="st11_fail" checked /> Failures &amp; reminders</label>
+            <label><input type="checkbox" name="st11_reply" /> Auto-replies</label>
+            <label><input type="checkbox" name="st11_erp" checked /> ERP posting</label>
+            <label><input type="checkbox" name="st11_story" /> Stage story</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Stage notes</label>
+          <textarea name="st11_notes" rows="2"></textarea>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="stage-title">
+          <strong>12. Put-away</strong>
+          <label class="inline"><input type="checkbox" name="st12_na" /> Stage N/A for us</label>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>Your name for this stage</label>
+            <input type="text" name="st12_label" value="Put-away" />
+          </div>
+          <div class="field">
+            <label>Depends on</label>
+            <input type="text" name="st12_depends" value="Receiving" />
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>What opens this stage?</label>
+            <div class="opt-grid">
+<label><input type="radio" name="st12_trigger" value="Human gate" /> Human gate</label>
+<label><input type="radio" name="st12_trigger" value="Document in" /> Document in</label>
+<label><input type="radio" name="st12_trigger" value="System / automatic" /> System / automatic</label>
+<label><input type="radio" name="st12_trigger" value="Physical event" checked /> Physical event</label>
+<label><input type="radio" name="st12_trigger" value="Timer / SLA" /> Timer / SLA</label>
+</div>
+          </div>
+          <div class="field">
+            <label>TraceRoot capability</label>
+            <div class="opt-grid">
+<label><input type="radio" name="st12_cap" value="" /> None (playbook only)</label>
+<label><input type="radio" name="st12_cap" value="Customer order" /> Customer order</label>
+<label><input type="radio" name="st12_cap" value="PO issue" /> PO issue</label>
+<label><input type="radio" name="st12_cap" value="Docs intake" /> Docs intake</label>
+<label><input type="radio" name="st12_cap" value="Freight booking" /> Freight booking</label>
+<label><input type="radio" name="st12_cap" value="Payment vs docs" /> Payment vs docs</label>
+<label><input type="radio" name="st12_cap" value="Telex release" /> Telex release</label>
+<label><input type="radio" name="st12_cap" value="ISF" /> ISF</label>
+<label><input type="radio" name="st12_cap" value="Vessel tracking" /> Vessel tracking</label>
+<label><input type="radio" name="st12_cap" value="Customs" /> Customs</label>
+<label><input type="radio" name="st12_cap" value="Drayage" /> Drayage</label>
+<label><input type="radio" name="st12_cap" value="Receiving" /> Receiving</label>
+<label><input type="radio" name="st12_cap" value="Put-away" checked /> Put-away</label>
+</div>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label">Collect details for</span>
+          <div class="checks">
+            <label><input type="checkbox" name="st12_docs" checked /> Documents</label>
+            <label><input type="checkbox" name="st12_fail" checked /> Failures &amp; reminders</label>
+            <label><input type="checkbox" name="st12_reply" /> Auto-replies</label>
+            <label><input type="checkbox" name="st12_erp" /> ERP posting</label>
+            <label><input type="checkbox" name="st12_story" /> Stage story</label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Stage notes</label>
+          <textarea name="st12_notes" rows="2"></textarea>
+        </div>
+      </div>
+
+      <h3>Extra stages (if your process has more)</h3>
+      <table class="sheet">
+        <thead>
+          <tr>
+            <th>Stage name</th>
+            <th>Depends on</th>
+            <th>Opens when</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="text" name="extra_st_1" /></td>
+            <td><input type="text" name="extra_dep_1" /></td>
+            <td><input type="text" name="extra_open_1" /></td>
+            <td><input type="text" name="extra_notes_1" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="extra_st_2" /></td>
+            <td><input type="text" name="extra_dep_2" /></td>
+            <td><input type="text" name="extra_open_2" /></td>
+            <td><input type="text" name="extra_notes_2" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- E Deep-dives -->
+    <section class="part break-before" id="part-e">
+      <h2>E. Deep-dives</h2>
+      <p class="lead">Fill for stages you marked above. Use stage name in the first column. Extra blank rows are included — leave unused rows empty, or add more on an attached page if needed.</p>
+
+      <h3>E1. Documents we expect</h3>
+      <p class="hint">Party-sent = counterparty emails a file. System-issued = TraceRoot generates (optionally on your letterhead).</p>
+      <table class="sheet">
+        <thead>
+          <tr>
+            <th>Stage</th>
+            <th>Document</th>
+            <th>Required?</th>
+            <th>Who sends?</th>
+            <th>Sample letterhead?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="text" name="doc_st_1" placeholder="Supplier docs" /></td>
+            <td><input type="text" name="doc_type_1" placeholder="Commercial invoice" /></td>
+            <td>
+              <input type="text" name="doc_req_1" placeholder="Required / Optional" />
+            </td>
+            <td><input type="text" name="doc_who_1" placeholder="Supplier / system" /></td>
+            <td><input type="text" name="doc_sample_1" placeholder="Y / N / attach" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="doc_st_2" /></td>
+            <td><input type="text" name="doc_type_2" placeholder="Packing list" /></td>
+            <td>
+              <input type="text" name="doc_req_2" placeholder="Required / Optional" />
+            </td>
+            <td><input type="text" name="doc_who_2" /></td>
+            <td><input type="text" name="doc_sample_2" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="doc_st_3" /></td>
+            <td><input type="text" name="doc_type_3" placeholder="Bill of lading" /></td>
+            <td>
+              <input type="text" name="doc_req_3" placeholder="Required / Optional" />
+            </td>
+            <td><input type="text" name="doc_who_3" /></td>
+            <td><input type="text" name="doc_sample_3" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="doc_st_4" /></td>
+            <td><input type="text" name="doc_type_4" /></td>
+            <td>
+              <input type="text" name="doc_req_4" placeholder="Required / Optional" />
+            </td>
+            <td><input type="text" name="doc_who_4" /></td>
+            <td><input type="text" name="doc_sample_4" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="doc_st_5" /></td>
+            <td><input type="text" name="doc_type_5" /></td>
+            <td>
+              <input type="text" name="doc_req_5" placeholder="Required / Optional" />
+            </td>
+            <td><input type="text" name="doc_who_5" /></td>
+            <td><input type="text" name="doc_sample_5" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="doc_st_6" /></td>
+            <td><input type="text" name="doc_type_6" /></td>
+            <td>
+              <input type="text" name="doc_req_6" placeholder="Required / Optional" />
+            </td>
+            <td><input type="text" name="doc_who_6" /></td>
+            <td><input type="text" name="doc_sample_6" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="doc_st_7" /></td>
+            <td><input type="text" name="doc_type_7" /></td>
+            <td>
+              <input type="text" name="doc_req_7" placeholder="Required / Optional" />
+            </td>
+            <td><input type="text" name="doc_who_7" /></td>
+            <td><input type="text" name="doc_sample_7" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="doc_st_8" /></td>
+            <td><input type="text" name="doc_type_8" /></td>
+            <td>
+              <input type="text" name="doc_req_8" placeholder="Required / Optional" />
+            </td>
+            <td><input type="text" name="doc_who_8" /></td>
+            <td><input type="text" name="doc_sample_8" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="doc_st_9" /></td>
+            <td><input type="text" name="doc_type_9" /></td>
+            <td>
+              <input type="text" name="doc_req_9" placeholder="Required / Optional" />
+            </td>
+            <td><input type="text" name="doc_who_9" /></td>
+            <td><input type="text" name="doc_sample_9" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="doc_st_10" /></td>
+            <td><input type="text" name="doc_type_10" /></td>
+            <td>
+              <input type="text" name="doc_req_10" placeholder="Required / Optional" />
+            </td>
+            <td><input type="text" name="doc_who_10" /></td>
+            <td><input type="text" name="doc_sample_10" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="doc_st_11" /></td>
+            <td><input type="text" name="doc_type_11" /></td>
+            <td>
+              <input type="text" name="doc_req_11" placeholder="Required / Optional" />
+            </td>
+            <td><input type="text" name="doc_who_11" /></td>
+            <td><input type="text" name="doc_sample_11" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="doc_st_12" /></td>
+            <td><input type="text" name="doc_type_12" /></td>
+            <td>
+              <input type="text" name="doc_req_12" placeholder="Required / Optional" />
+            </td>
+            <td><input type="text" name="doc_who_12" /></td>
+            <td><input type="text" name="doc_sample_12" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="doc_st_13" /></td>
+            <td><input type="text" name="doc_type_13" /></td>
+            <td>
+              <input type="text" name="doc_req_13" placeholder="Required / Optional" />
+            </td>
+            <td><input type="text" name="doc_who_13" /></td>
+            <td><input type="text" name="doc_sample_13" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="doc_st_14" /></td>
+            <td><input type="text" name="doc_type_14" /></td>
+            <td>
+              <input type="text" name="doc_req_14" placeholder="Required / Optional" />
+            </td>
+            <td><input type="text" name="doc_who_14" /></td>
+            <td><input type="text" name="doc_sample_14" /></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>E2. Failures &amp; reminders</h3>
+      <p class="hint">What goes wrong, who we chase, and how often. Sample wording optional.</p>
+      <table class="sheet">
+        <thead>
+          <tr>
+            <th>Stage</th>
+            <th>What goes wrong</th>
+            <th>Chase whom</th>
+            <th>Cadence</th>
+            <th>Sample subject / notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="text" name="fail_st_1" /></td>
+            <td><input type="text" name="fail_what_1" placeholder="No docs by expected date" /></td>
+            <td><input type="text" name="fail_who_1" placeholder="Supplier" /></td>
+            <td><input type="text" name="fail_cad_1" placeholder="Every 2 days" /></td>
+            <td><input type="text" name="fail_msg_1" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="fail_st_2" /></td>
+            <td><input type="text" name="fail_what_2" /></td>
+            <td><input type="text" name="fail_who_2" /></td>
+            <td><input type="text" name="fail_cad_2" /></td>
+            <td><input type="text" name="fail_msg_2" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="fail_st_3" /></td>
+            <td><input type="text" name="fail_what_3" /></td>
+            <td><input type="text" name="fail_who_3" /></td>
+            <td><input type="text" name="fail_cad_3" /></td>
+            <td><input type="text" name="fail_msg_3" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="fail_st_4" /></td>
+            <td><input type="text" name="fail_what_4" /></td>
+            <td><input type="text" name="fail_who_4" /></td>
+            <td><input type="text" name="fail_cad_4" /></td>
+            <td><input type="text" name="fail_msg_4" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="fail_st_5" /></td>
+            <td><input type="text" name="fail_what_5" /></td>
+            <td><input type="text" name="fail_who_5" /></td>
+            <td><input type="text" name="fail_cad_5" /></td>
+            <td><input type="text" name="fail_msg_5" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="fail_st_6" /></td>
+            <td><input type="text" name="fail_what_6" /></td>
+            <td><input type="text" name="fail_who_6" /></td>
+            <td><input type="text" name="fail_cad_6" /></td>
+            <td><input type="text" name="fail_msg_6" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="fail_st_7" /></td>
+            <td><input type="text" name="fail_what_7" /></td>
+            <td><input type="text" name="fail_who_7" /></td>
+            <td><input type="text" name="fail_cad_7" /></td>
+            <td><input type="text" name="fail_msg_7" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="fail_st_8" /></td>
+            <td><input type="text" name="fail_what_8" /></td>
+            <td><input type="text" name="fail_who_8" /></td>
+            <td><input type="text" name="fail_cad_8" /></td>
+            <td><input type="text" name="fail_msg_8" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="fail_st_9" /></td>
+            <td><input type="text" name="fail_what_9" /></td>
+            <td><input type="text" name="fail_who_9" /></td>
+            <td><input type="text" name="fail_cad_9" /></td>
+            <td><input type="text" name="fail_msg_9" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="fail_st_10" /></td>
+            <td><input type="text" name="fail_what_10" /></td>
+            <td><input type="text" name="fail_who_10" /></td>
+            <td><input type="text" name="fail_cad_10" /></td>
+            <td><input type="text" name="fail_msg_10" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="fail_st_11" /></td>
+            <td><input type="text" name="fail_what_11" /></td>
+            <td><input type="text" name="fail_who_11" /></td>
+            <td><input type="text" name="fail_cad_11" /></td>
+            <td><input type="text" name="fail_msg_11" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="fail_st_12" /></td>
+            <td><input type="text" name="fail_what_12" /></td>
+            <td><input type="text" name="fail_who_12" /></td>
+            <td><input type="text" name="fail_cad_12" /></td>
+            <td><input type="text" name="fail_msg_12" /></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>E3. Auto-replies (inbound mail)</h3>
+      <p class="hint">Situations where an inbound email should get an automatic reply (not failure reminders).</p>
+      <table class="sheet">
+        <thead>
+          <tr>
+            <th>Stage</th>
+            <th>When this email arrives…</th>
+            <th>Reply to</th>
+            <th>Reply gist</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="text" name="ar_st_1" /></td>
+            <td><input type="text" name="ar_when_1" placeholder="PO acknowledgement" /></td>
+            <td><input type="text" name="ar_to_1" /></td>
+            <td><input type="text" name="ar_gist_1" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="ar_st_2" /></td>
+            <td><input type="text" name="ar_when_2" /></td>
+            <td><input type="text" name="ar_to_2" /></td>
+            <td><input type="text" name="ar_gist_2" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="ar_st_3" /></td>
+            <td><input type="text" name="ar_when_3" /></td>
+            <td><input type="text" name="ar_to_3" /></td>
+            <td><input type="text" name="ar_gist_3" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="ar_st_4" /></td>
+            <td><input type="text" name="ar_when_4" /></td>
+            <td><input type="text" name="ar_to_4" /></td>
+            <td><input type="text" name="ar_gist_4" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="ar_st_5" /></td>
+            <td><input type="text" name="ar_when_5" /></td>
+            <td><input type="text" name="ar_to_5" /></td>
+            <td><input type="text" name="ar_gist_5" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="ar_st_6" /></td>
+            <td><input type="text" name="ar_when_6" /></td>
+            <td><input type="text" name="ar_to_6" /></td>
+            <td><input type="text" name="ar_gist_6" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="ar_st_7" /></td>
+            <td><input type="text" name="ar_when_7" /></td>
+            <td><input type="text" name="ar_to_7" /></td>
+            <td><input type="text" name="ar_gist_7" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="ar_st_8" /></td>
+            <td><input type="text" name="ar_when_8" /></td>
+            <td><input type="text" name="ar_to_8" /></td>
+            <td><input type="text" name="ar_gist_8" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="ar_st_9" /></td>
+            <td><input type="text" name="ar_when_9" /></td>
+            <td><input type="text" name="ar_to_9" /></td>
+            <td><input type="text" name="ar_gist_9" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="ar_st_10" /></td>
+            <td><input type="text" name="ar_when_10" /></td>
+            <td><input type="text" name="ar_to_10" /></td>
+            <td><input type="text" name="ar_gist_10" /></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>E4. ERP posting</h3>
+      <p class="hint">What should draft in accounting when a stage completes.</p>
+      <table class="sheet">
+        <thead>
+          <tr>
+            <th>Stage</th>
+            <th>What posts?</th>
+            <th>Debit / credit notes</th>
+            <th>GL labels (if known)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="text" name="erp_st_1" placeholder="Supplier PO" /></td>
+            <td><input type="text" name="erp_what_1" placeholder="Open PO commitment" /></td>
+            <td><input type="text" name="erp_dc_1" /></td>
+            <td><input type="text" name="erp_gl_1" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="erp_st_2" placeholder="Pay vs docs" /></td>
+            <td><input type="text" name="erp_what_2" placeholder="AP + inventory in transit" /></td>
+            <td><input type="text" name="erp_dc_2" /></td>
+            <td><input type="text" name="erp_gl_2" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="erp_st_3" /></td>
+            <td><input type="text" name="erp_what_3" /></td>
+            <td><input type="text" name="erp_dc_3" /></td>
+            <td><input type="text" name="erp_gl_3" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="erp_st_4" /></td>
+            <td><input type="text" name="erp_what_4" /></td>
+            <td><input type="text" name="erp_dc_4" /></td>
+            <td><input type="text" name="erp_gl_4" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="erp_st_5" /></td>
+            <td><input type="text" name="erp_what_5" /></td>
+            <td><input type="text" name="erp_dc_5" /></td>
+            <td><input type="text" name="erp_gl_5" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="erp_st_6" /></td>
+            <td><input type="text" name="erp_what_6" /></td>
+            <td><input type="text" name="erp_dc_6" /></td>
+            <td><input type="text" name="erp_gl_6" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="erp_st_7" /></td>
+            <td><input type="text" name="erp_what_7" /></td>
+            <td><input type="text" name="erp_dc_7" /></td>
+            <td><input type="text" name="erp_gl_7" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="erp_st_8" /></td>
+            <td><input type="text" name="erp_what_8" /></td>
+            <td><input type="text" name="erp_dc_8" /></td>
+            <td><input type="text" name="erp_gl_8" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="erp_st_9" /></td>
+            <td><input type="text" name="erp_what_9" /></td>
+            <td><input type="text" name="erp_dc_9" /></td>
+            <td><input type="text" name="erp_gl_9" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="erp_st_10" /></td>
+            <td><input type="text" name="erp_what_10" /></td>
+            <td><input type="text" name="erp_dc_10" /></td>
+            <td><input type="text" name="erp_gl_10" /></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>E5. Stage story (who talks to whom)</h3>
+      <p class="hint">Narrative beats for demos — not live chase mail.</p>
+      <table class="sheet">
+        <thead>
+          <tr>
+            <th>Stage</th>
+            <th>From</th>
+            <th>To</th>
+            <th>Purpose / subject gist</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="text" name="story_st_1" /></td>
+            <td><input type="text" name="story_from_1" /></td>
+            <td><input type="text" name="story_to_1" /></td>
+            <td><input type="text" name="story_purp_1" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="story_st_2" /></td>
+            <td><input type="text" name="story_from_2" /></td>
+            <td><input type="text" name="story_to_2" /></td>
+            <td><input type="text" name="story_purp_2" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="story_st_3" /></td>
+            <td><input type="text" name="story_from_3" /></td>
+            <td><input type="text" name="story_to_3" /></td>
+            <td><input type="text" name="story_purp_3" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="story_st_4" /></td>
+            <td><input type="text" name="story_from_4" /></td>
+            <td><input type="text" name="story_to_4" /></td>
+            <td><input type="text" name="story_purp_4" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="story_st_5" /></td>
+            <td><input type="text" name="story_from_5" /></td>
+            <td><input type="text" name="story_to_5" /></td>
+            <td><input type="text" name="story_purp_5" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="story_st_6" /></td>
+            <td><input type="text" name="story_from_6" /></td>
+            <td><input type="text" name="story_to_6" /></td>
+            <td><input type="text" name="story_purp_6" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="story_st_7" /></td>
+            <td><input type="text" name="story_from_7" /></td>
+            <td><input type="text" name="story_to_7" /></td>
+            <td><input type="text" name="story_purp_7" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="story_st_8" /></td>
+            <td><input type="text" name="story_from_8" /></td>
+            <td><input type="text" name="story_to_8" /></td>
+            <td><input type="text" name="story_purp_8" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="story_st_9" /></td>
+            <td><input type="text" name="story_from_9" /></td>
+            <td><input type="text" name="story_to_9" /></td>
+            <td><input type="text" name="story_purp_9" /></td>
+          </tr>
+          <tr>
+            <td><input type="text" name="story_st_10" /></td>
+            <td><input type="text" name="story_from_10" /></td>
+            <td><input type="text" name="story_to_10" /></td>
+            <td><input type="text" name="story_purp_10" /></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>E6. Stage packs (when relevant)</h3>
+      <div class="row-2">
+        <div class="field">
+          <label for="poFields">PO — fields required before send</label>
+          <textarea id="poFields" name="poFields" placeholder="Quantity, unit price, supplier name, Incoterms…"></textarea>
+        </div>
+        <div class="field">
+          <label for="isfFields">ISF — worksheet fields required</label>
+          <textarea id="isfFields" name="isfFields" placeholder="Seller, buyer, HTS, country of origin…"></textarea>
+        </div>
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label for="freightPack">Freight — rates, RFQ timing, booking confirm needs</label>
+          <textarea id="freightPack" name="freightPack" placeholder="Ocean $/container; RFQ lead days; fields that must be in writing before booked…"></textarea>
+        </div>
+        <div class="field">
+          <label for="drayagePack">Drayage — rates, warehouse, unload, RFQ timing</label>
+          <textarea id="drayagePack" name="drayagePack" placeholder="Per-container $; warehouse address &amp; delivery window; unload mode; demurrage…"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- F Case-wide -->
+    <section class="part break-before" id="part-f">
+      <h2>F. Case-wide defaults</h2>
+      <p class="lead">Settings that apply once per client — not per stage.</p>
+
+      <h3>Timing</h3>
+      <div class="row-3">
+        <div class="field">
+          <label for="telexDays">Telex ask — days before ETA</label>
+          <input id="telexDays" type="number" name="telexDays" min="0" placeholder="e.g. 5" />
+        </div>
+        <div class="field">
+          <label for="freeDays">Free days after ETA (LFD)</label>
+          <input id="freeDays" type="number" name="freeDays" min="0" placeholder="e.g. 4" />
+        </div>
+        <div class="field">
+          <label for="payDue">Default payment due (days)</label>
+          <input id="payDue" type="number" name="payDue" min="0" placeholder="e.g. 30" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="disabledFail">Failures to ignore / disable (if any)</label>
+        <textarea id="disabledFail" name="disabledFail" placeholder="Describe situations you never want TraceRoot to chase…"></textarea>
+      </div>
+
+      <h3>Commercial &amp; logistics defaults</h3>
+      <div class="row-2">
+        <div class="field">
+          <label for="oceanUsd">Typical ocean freight USD / container</label>
+          <input id="oceanUsd" type="text" name="oceanUsd" />
+        </div>
+        <div class="field">
+          <label for="drayUsd">Typical drayage USD / container</label>
+          <input id="drayUsd" type="text" name="drayUsd" />
+        </div>
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label for="defIncoterms">Default Incoterms</label>
+          <input id="defIncoterms" type="text" name="defIncoterms" placeholder="FOB" />
+        </div>
+        <div class="field">
+          <label for="defPayTerms">Default payment terms</label>
+          <input id="defPayTerms" type="text" name="defPayTerms" placeholder="Net 30" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="consignee">Expected consignee on B/L (if fixed)</label>
+        <input id="consignee" type="text" name="consignee" />
+      </div>
+
+      <h3>GL display names (optional)</h3>
+      <p class="hint">Labels used on draft posting lines — not necessarily QuickBooks account IDs.</p>
+      <table class="sheet">
+        <thead>
+          <tr>
+            <th>Role</th>
+            <th>Your GL / account label</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>AP / payable</td><td><input type="text" name="gl_ap" /></td></tr>
+          <tr><td>Inventory / in transit</td><td><input type="text" name="gl_inv" /></td></tr>
+          <tr><td>Freight expense</td><td><input type="text" name="gl_frt" /></td></tr>
+          <tr><td>Duty / customs</td><td><input type="text" name="gl_duty" /></td></tr>
+          <tr><td>Other</td><td><input type="text" name="gl_other" /></td></tr>
+        </tbody>
+      </table>
+
+      <h3>Sample documents to attach</h3>
+      <div class="checks">
+        <label><input type="checkbox" name="sample_po" /> Buyer PO / letterhead</label>
+        <label><input type="checkbox" name="sample_inv" /> Customer invoice sample</label>
+        <label><input type="checkbox" name="sample_remit" /> Remittance advice sample</label>
+        <label><input type="checkbox" name="sample_swift" /> Payment / SWIFT confirm sample</label>
+        <label><input type="checkbox" name="sample_other" /> Other (note below)</label>
+      </div>
+      <div class="field" style="margin-top:10px">
+        <label for="sampleNotes">Attachment notes</label>
+        <textarea id="sampleNotes" name="sampleNotes" placeholder="File names or links…"></textarea>
+      </div>
+
+      <div class="field">
+        <label for="approvers">Approvers (names / emails)</label>
+        <textarea id="approvers" name="approvers" placeholder="Who may approve drafts / exceptions…"></textarea>
+      </div>
+    </section>
+
+    <!-- Consultant appendix -->
+    <section class="part appendix" id="appendix" hidden>
+      <h2>Appendix — TraceRoot mapping <span class="badge">Internal</span></h2>
+      <p class="lead">For consultants only. Maps answers into AccountProfile paths. See <code>docs/onboarding/account-profile-discovery.md</code>.</p>
+      <div class="path-map">
+        <p><strong>A Identity</strong> → <code>branding.buyerName</code>, <code>direction</code>, <code>erpMode</code>, auto <code>intakeRoutes.email.inboxAlias</code></p>
+        <p><strong>B Parties</strong> → <code>parties[]</code> (sync known roles → <code>outboundParties</code>)</p>
+        <p><strong>C Suppliers</strong> → tenant <code>suppliers.json</code> (+ party upsert on save)</p>
+        <p><strong>D Stages</strong> → <code>workflowSteps[]</code> + <code>capabilities</code> + <code>onboarding.stageFacets</code> + <code>notes</code></p>
+        <p><strong>E Docs</strong> → <code>expectedDocTypes[]</code> / <code>documentTemplates[]</code></p>
+        <p><strong>E Failures</strong> → <code>exceptions[]</code> + <code>outboundTemplates[]</code> (<code>exceptionCodes</code>)</p>
+        <p><strong>E Auto-replies</strong> → <code>outboundTemplates[]</code> (<code>classifyLabels</code>)</p>
+        <p><strong>E Posting</strong> → <code>workflowSteps[].postingTemplate</code> + <code>postingTemplates</code></p>
+        <p><strong>E Story</strong> → <code>emailTemplates[]</code> + <code>onboarding.stageStories</code></p>
+        <p><strong>E Packs</strong> → <code>poAssumptions</code> / <code>isfAssumptions</code> / <code>freightAssumptions</code> / <code>drayageAssumptions</code></p>
+        <p><strong>F Case-wide</strong> → <code>clockPolicy</code>, <code>governance.*</code>, <code>commercialDefaults</code>, <code>glTargets</code></p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (function () {
+      var STORAGE_KEY = "traceroot.clientDiscovery.v1";
+      var formRoot = document.querySelector(".wrap");
+      var statusEl = document.getElementById("saveStatus");
+      var saveTimer = null;
+
+      function allFields() {
+        return formRoot.querySelectorAll("input, select, textarea");
+      }
+
+      function collect() {
+        var data = { savedAt: new Date().toISOString(), fields: {} };
+        allFields().forEach(function (el) {
+          var name = el.name;
+          if (!name) return;
+          if (el.type === "checkbox" || el.type === "radio") {
+            if (!el.checked) return;
+            if (el.type === "checkbox") {
+              if (!Array.isArray(data.fields[name])) data.fields[name] = [];
+              data.fields[name].push(el.value || true);
+            } else {
+              data.fields[name] = el.value;
+            }
+            return;
+          }
+          data.fields[name] = el.value;
+        });
+        return data;
+      }
+
+      function apply(data) {
+        if (!data || !data.fields) return;
+        allFields().forEach(function (el) {
+          var name = el.name;
+          if (!name || !(name in data.fields)) return;
+          var v = data.fields[name];
+          if (el.type === "checkbox") {
+            var list = Array.isArray(v) ? v : [v];
+            el.checked = list.indexOf(el.value || true) >= 0 || list.indexOf(true) >= 0;
+            return;
+          }
+          if (el.type === "radio") {
+            el.checked = String(v) === String(el.value);
+            return;
+          }
+          el.value = v == null ? "" : String(v);
+        });
+      }
+
+      function persist() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(collect()));
+          if (statusEl) {
+            statusEl.textContent = "Saved locally · " + new Date().toLocaleTimeString();
+            statusEl.classList.add("ok");
+          }
+        } catch (e) {
+          if (statusEl) statusEl.textContent = "Could not save locally";
+        }
+      }
+
+      function scheduleSave() {
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(persist, 400);
+      }
+
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) apply(JSON.parse(raw));
+      } catch (e) {}
+
+      formRoot.addEventListener("input", scheduleSave);
+      formRoot.addEventListener("change", scheduleSave);
+
+      var appendix = document.getElementById("appendix");
+      if (appendix) {
+        appendix.hidden = true;
+        appendix.classList.add("no-print");
+      }
+
+      document.getElementById("btnPrint").addEventListener("click", function () {
+        persist();
+        window.print();
+      });
+
+      document.getElementById("btnDownload").addEventListener("click", function () {
+        var data = collect();
+        var blob = new Blob([JSON.stringify(data, null, 2)], {
+          type: "application/json",
+        });
+        var a = document.createElement("a");
+        var company = (data.fields.company || "client").toString().replace(/[^\w\-]+/g, "_").slice(0, 40);
+        a.href = URL.createObjectURL(blob);
+        a.download = "traceroot-discovery-" + company + "-" + Date.now() + ".json";
+        a.click();
+        URL.revokeObjectURL(a.href);
+        persist();
+      });
+
+      document.getElementById("btnClear").addEventListener("click", function () {
+        if (!confirm("Clear all saved answers in this browser?")) return;
+        localStorage.removeItem(STORAGE_KEY);
+        allFields().forEach(function (el) {
+          if (el.type === "checkbox" || el.type === "radio") el.checked = el.defaultChecked;
+          else el.value = el.defaultValue;
+        });
+        if (statusEl) {
+          statusEl.textContent = "Cleared";
+          statusEl.classList.remove("ok");
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

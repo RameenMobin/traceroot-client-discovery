@@ -28,6 +28,10 @@ Do **not** connect the SilverBirch-FE monorepo.
 3. **Download answers (JSON)** → email TraceRoot.
 4. Optional: **Print** for a paper/PDF snapshot.
 
+## Admin (TraceRoot)
+
+In the workflows app → **Onboarding** → **Import discovery JSON**. Pick the client’s download. That seeds a draft tenant/profile (identity, parties, suppliers, stages, docs, failures, packs, case-wide). Review Stages / Failures (soft-draft failure codes), then **Save draft**.
+
 ## Save / continue & multiple clients
 
 - Progress is stored in the browser (`localStorage`) under a **workspace name**.

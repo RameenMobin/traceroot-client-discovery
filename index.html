@@ -196,15 +196,25 @@
       font-size: 13px;
     }
     .draft-bar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: end;
       padding-top: 16px;
       border-top: 1px solid var(--line-soft);
     }
-    .draft-bar .field { margin: 0; flex: 1; min-width: 200px; }
-    .draft-bar .hint { margin-top: 4px; }
+    .draft-bar .field { margin: 0; }
+    .draft-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .draft-row input {
+      flex: 1;
+      min-width: 180px;
+    }
+    .draft-row button {
+      flex-shrink: 0;
+      align-self: center;
+    }
+    .draft-bar .hint { margin-top: 6px; }
 
     section.part {
       background: var(--card);
@@ -532,10 +542,12 @@
       <div class="draft-bar">
         <div class="field">
           <label for="workspaceName">Your draft name</label>
-          <input id="workspaceName" type="text" name="workspaceName" placeholder="e.g. Jane at Acme" autocomplete="nickname" />
+          <div class="draft-row">
+            <input id="workspaceName" type="text" name="workspaceName" placeholder="e.g. Jane at Acme" autocomplete="nickname" />
+            <button type="button" class="ghost" id="btnLoadWorkspace">Open draft</button>
+          </div>
           <span class="hint">Optional. Helps you find this draft if you return later on this device.</span>
         </div>
-        <button type="button" class="ghost" id="btnLoadWorkspace">Open draft</button>
       </div>
     </div>
 
